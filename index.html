@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <meta name="theme-color" content="#f5a9b8">
+  <title>FOTON · Recuerdos Especiales</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', sans-serif;
+      background: linear-gradient(145deg, #fce4ec 0%, #ffe6f0 100%);
+      min-height: 100vh;
+    }
+
+    /* ========== PANTALLA DE BIENVENIDA ========== */
+    .welcome-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 100%);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.5s ease;
+    }
+
+    .welcome-screen.hide {
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(1.05);
+    }
+
+    .welcome-card {
+      background: rgba(255,255,255,0.96);
+      backdrop-filter: blur(20px);
+      border-radius: 48px;
+      padding: 35px 25px;
+      margin: 20px;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 30px 50px rgba(0,0,0,0.2);
+      animation: fadeUp 0.6s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .welcome-icon {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+    }
+
+    .welcome-card h1 {
+      font-size: 1.6rem;
+      background: linear-gradient(135deg, #ee9ca7, #ff6b8b);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      margin-bottom: 20px;
+    }
+
+    .welcome-message {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #ff6b8b;
+      margin: 15px 0;
+      padding: 12px;
+      background: #fff0f3;
+      border-radius: 25px;
+      line-height: 1.4;
+    }
+
+    .features {
+      text-align: left;
+      margin: 20px 0;
+      padding: 10px;
+      background: #faf0f2;
+      border-radius: 25px;
+    }
+
+    .features p {
+      color: #6b4e5a;
+      font-size: 0.85rem;
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-permitir {
+      background: linear-gradient(135deg, #ff6b8b, #ff8aa8);
+      border: none;
+      padding: 16px 28px;
+      border-radius: 50px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 15px;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 20px rgba(255,107,139,0.3);
+      transition: all 0.2s;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-permitir:active {
+      transform: scale(0.97);
+    }
+
+    .error-message {
+      background: #ffebee;
+      color: #c62828;
+      padding: 10px;
+      border-radius: 25px;
+      font-size: 0.75rem;
+      margin-top: 15px;
+    }
+
+    /* ========== APP PRINCIPAL ========== */
+    .main-app {
+      display: none;
+      width: 100%;
+      min-height: 100vh;
+      background: #000;
+    }
+
+    .main-app.visible {
+      display: block;
+    }
+
+    .camera-view {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #video {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .camera-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #1a1a2e;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      text-align: center;
+      z-index: 5;
+    }
+
+    .header-stats {
+      position: absolute;
+      top: 50px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 20;
+    }
+
+    .stat-badge {
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      padding: 8px 14px;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-badge span {
+      color: #ffd966;
+      font-weight: 800;
+    }
+
+    .filter-name {
+      position: absolute;
+      bottom: 140px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(20px);
+      padding: 8px 20px;
+      border-radius: 40px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.8rem;
+      z-index: 20;
+      white-space: nowrap;
+    }
+
+    .capture-btn {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: white;
+      border: 3px solid rgba(255,255,255,0.5);
+      cursor: pointer;
+      z-index: 30;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .capture-btn:active {
+      transform: translateX(-50%) scale(0.92);
+    }
+
+    .capture-btn::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      right: 4px;
+      bottom: 4px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffb347, #ff8c00);
+    }
+
+    .switch-cam, .note-btn, .gallery-btn {
+      position: absolute;
+      bottom: 40px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      border: none;
+      color: white;
+      font-size: 1.3rem;
+      cursor: pointer;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .switch-cam { right: 20px; }
+    .note-btn { left: 20px; }
+    .gallery-btn { left: 90px; }
+
+    .swipe-hint {
+      position: absolute;
+      bottom: 180px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.5);
+      padding: 5px 12px;
+      border-radius: 20px;
+      color: white;
+      font-size: 0.6rem;
+      z-index: 20;
+      white-space: nowrap;
+    }
+
+    /* Paneles */
+    .panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255,255,255,0.98);
+      border-radius: 30px 30px 0 0;
+      padding: 25px;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      z-index: 100;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    .panel.open {
+      transform: translateY(0);
+    }
+
+    .panel.dark {
+      background: rgba(0,0,0,0.95);
+      color: white;
+    }
+
+    .panel h3 {
+      color: #ff6b8b;
+      margin-bottom: 15px;
+    }
+
+    .panel.dark h3 { color: #ff8aa8; }
+
+    .name-input, .note-input {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #ffe0e5;
+      border-radius: 25px;
+      font-size: 1rem;
+      margin-bottom: 12px;
+      font-family: inherit;
+    }
+
+    .photo-preview {
+      width: 100%;
+      height: 150px;
+      background: #f0f0f0;
+      border-radius: 20px;
+      margin: 15px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .photo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .btn-capture-note, .btn-submit-note {
+      width: 100%;
+      padding: 14px;
+      border-radius: 30px;
+      font-weight: 600;
+      border: none;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .btn-capture-note {
+      background: linear-gradient(135deg, #ff6b8b, #ff8aa8);
+      color: white;
+    }
+
+    .btn-submit-note {
+      background: linear-gradient(135deg, #4caf50, #66bb6a);
+      color: white;
+    }
+
+    .close-panel {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .gallery-grid {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .gallery-item {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      overflow: hidden;
+      flex-shrink: 0;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 120px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.85);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      z-index: 200;
+      animation: fadeOut 2s forwards;
+      white-space: nowrap;
+    }
+
+    @keyframes fadeOut {
+      0% { opacity: 1; }
+      70% { opacity: 1; }
+      100% { opacity: 0; visibility: hidden; }
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid white;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 0.6s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <!-- PANTALLA DE BIENVENIDA -->
+  <div id="welcomeScreen" class="welcome-screen">
+    <div class="welcome-card">
+      <div class="welcome-icon">✨📸✨</div>
+      <h1>Bienvenida/o</h1>
+      <div class="welcome-message">
+        🌸 Aquí podrás guardar y hacerme llegar<br>
+        <strong>los mejores recuerdos de esta noche</strong><br>
+        ✨ Espero que la disfrutes como yo ✨
+      </div>
+      <div class="features">
+        <p><i class="fas fa-magic"></i> Toma fotos con filtros mágicos</p>
+        <p><i class="fas fa-pen-fancy"></i> Deja notas especiales con tu foto</p>
+        <p><i class="fas fa-cloud-upload-alt"></i> Todo se guardará automáticamente</p>
+      </div>
+      <button id="permitirCamaraBtn" class="btn-permitir"><i class="fas fa-camera"></i> Conceder acceso a cámara</button>
+      <div id="errorMsg" class="error-message" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- APP PRINCIPAL -->
+  <div id="mainApp" class="main-app">
+    <div class="camera-view">
+      <video id="video" autoplay playsinline muted></video>
+      <div id="cameraPlaceholder" class="camera-placeholder" style="display:none;">
+        <i class="fas fa-camera-slash" style="font-size:3rem; margin-bottom:15px;"></i>
+        <p>No se pudo acceder a la cámara</p>
+        <button id="reintentarCamara" style="margin-top:15px; padding:10px 20px; border-radius:30px; background:#ff6b8b; border:none; color:white;">Reintentar</button>
+      </div>
+      
+      <div class="header-stats">
+        <div class="stat-badge"><i class="fas fa-cloud-upload-alt"></i> Drive: <span id="totalEnviadas">0</span></div>
+        <div class="stat-badge"><i class="fas fa-images"></i> Fotos: <span id="totalFotos">0</span></div>
+      </div>
+      
+      <div id="filterName" class="filter-name">🌸 NATURAL</div>
+      <div class="swipe-hint"><i class="fas fa-hand-peace"></i> Desliza sobre la imagen → cambia filtro</div>
+      
+      <div class="capture-btn" id="captureBtn"></div>
+      <button class="switch-cam" id="switchCamBtn"><i class="fas fa-sync-alt"></i></button>
+      <button class="note-btn" id="noteBtn"><i class="fas fa-pen-fancy"></i></button>
+      <button class="gallery-btn" id="galleryBtn"><i class="fas fa-images"></i></button>
+    </div>
+  </div>
+
+  <!-- PANEL DE NOTAS -->
+  <div id="notePanel" class="panel">
+    <button class="close-panel" id="closeNoteBtn">&times;</button>
+    <h3><i class="fas fa-heart"></i> Deja tu mensaje especial</h3>
+    <input type="text" id="userName" class="name-input" placeholder="Tu nombre ✨">
+    <textarea id="noteMessage" class="note-input" rows="3" placeholder="Escribe aquí tu mensaje, dedicatoria o recuerdo... 💌"></textarea>
+    <div class="photo-preview" id="notePhotoPreview">
+      <span style="color:#aaa"><i class="fas fa-camera"></i> Toca para tomar una foto</span>
+    </div>
+    <button id="takePhotoForNote" class="btn-capture-note"><i class="fas fa-camera"></i> Tomar foto para la nota</button>
+    <button id="submitNoteBtn" class="btn-submit-note"><i class="fas fa-paper-plane"></i> Enviar nota con foto</button>
+  </div>
+
+  <!-- PANEL DE GALERÍA -->
+  <div id="galleryPanel" class="panel dark">
+    <button class="close-panel" id="closeGalleryBtn" style="color:white;">&times;</button>
+    <div class="gallery-header" style="display:flex; justify-content:space-between; margin-bottom:15px;">
+      <span><i class="fas fa-film"></i> Tus recuerdos</span>
+    </div>
+    <div id="galleryGrid" class="gallery-grid"></div>
+  </div>
+
+  <script>
+    // ========== CONFIGURACIÓN ==========
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx30ZG3jDS-4CoszM4SORbwB9pTwgrfNLbo0Jk7xLbk_Y7wopNTzS6Uw7C41UC04MdN/exec";
+    
+    const filters = [
+      { name: "NATURAL", icon: "🌸", css: "none" },
+      { name: "CLARENDON", icon: "☀️", css: "brightness(110%) contrast(115%) saturate(125%)" },
+      { name: "GINGHAM", icon: "🎀", css: "contrast(105%) brightness(102%) sepia(10%)" },
+      { name: "MOON", icon: "🌙", css: "grayscale(40%) contrast(120%)" },
+      { name: "LARK", icon: "🌿", css: "brightness(108%) saturate(90%) hue-rotate(-5deg)" },
+      { name: "REYES", icon: "🌅", css: "sepia(30%) contrast(110%) brightness(95%)" },
+      { name: "VALENCIA", icon: "🍊", css: "sepia(15%) contrast(110%) brightness(105%)" }
+    ];
+    
+    let currentFilterIndex = 0;
+    let fotos = [];
+    let nextId = 1;
+    let totalEnviadas = 0;
+    let currentStream = null;
+    let currentFacing = "user";
+    let notePhotoData = null;
+    let cameraActive = false;
+    
+    // Elementos
+    const welcomeScreen = document.getElementById('welcomeScreen');
+    const mainApp = document.getElementById('mainApp');
+    const permitirBtn = document.getElementById('permitirCamaraBtn');
+    const reintentarBtn = document.getElementById('reintentarCamara');
+    const video = document.getElementById('video');
+    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+    const filterNameSpan = document.getElementById('filterName');
+    const captureBtn = document.getElementById('captureBtn');
+    const switchCamBtn = document.getElementById('switchCamBtn');
+    const noteBtn = document.getElementById('noteBtn');
+    const galleryBtn = document.getElementById('galleryBtn');
+    const notePanel = document.getElementById('notePanel');
+    const galleryPanel = document.getElementById('galleryPanel');
+    const closeNoteBtn = document.getElementById('closeNoteBtn');
+    const closeGalleryBtn = document.getElementById('closeGalleryBtn');
+    const galleryGrid = document.getElementById('galleryGrid');
+    const totalEnviadasSpan = document.getElementById('totalEnviadas');
+    const totalFotosSpan = document.getElementById('totalFotos');
+    const userNameInput = document.getElementById('userName');
+    const noteMessageInput = document.getElementById('noteMessage');
+    const takePhotoForNoteBtn = document.getElementById('takePhotoForNote');
+    const submitNoteBtn = document.getElementById('submitNoteBtn');
+    const notePhotoPreview = document.getElementById('notePhotoPreview');
+    const errorMsgDiv = document.getElementById('errorMsg');
+    
+    // ========== FUNCIONES DE CÁMARA ==========
+    async function initCamera(facingMode) {
+      // Mostrar loading
+      if (cameraPlaceholder) cameraPlaceholder.style.display = 'none';
+      
+      if (currentStream) {
+        currentStream.getTracks().forEach(track => track.stop());
+      }
+      
+      try {
+        const constraints = {
+          video: {
+            facingMode: { exact: facingMode },
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        };
+        
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        currentStream = stream;
+        video.srcObject = stream;
+        await video.play();
+        cameraActive = true;
+        applyFilterToVideo(filters[currentFilterIndex]);
+        return true;
+      } catch (err) {
+        console.error("Error exact facingMode:", err);
+        
+        // Intentar sin facingMode exact
+        try {
+          const constraints = { video: { facingMode: facingMode } };
+          const stream = await navigator.mediaDevices.getUserMedia(constraints);
+          currentStream = stream;
+          video.srcObject = stream;
+          await video.play();
+          cameraActive = true;
+          applyFilterToVideo(filters[currentFilterIndex]);
+          return true;
+        } catch (e) {
+          console.error("Error fallback:", e);
+          cameraActive = false;
+          if (cameraPlaceholder) cameraPlaceholder.style.display = 'flex';
+          return false;
+        }
+      }
+    }
+    
+    function applyFilterToVideo(filter) {
+      if (!video) return;
+      if (filter.css === "none") video.style.filter = "none";
+      else video.style.filter = filter.css;
+      filterNameSpan.innerHTML = `${filter.icon} ${filter.name}`;
+    }
+    
+    function nextFilter() {
+      currentFilterIndex = (currentFilterIndex + 1) % filters.length;
+      applyFilterToVideo(filters[currentFilterIndex]);
+      showToast(`${filters[currentFilterIndex].icon} ${filters[currentFilterIndex].name}`);
+    }
+    
+    function prevFilter() {
+      currentFilterIndex = (currentFilterIndex - 1 + filters.length) % filters.length;
+      applyFilterToVideo(filters[currentFilterIndex]);
+      showToast(`${filters[currentFilterIndex].icon} ${filters[currentFilterIndex].name}`);
+    }
+    
+    // ========== CAPTURAR FOTO ==========
+    async function capturePhoto() {
+      if (!cameraActive || !video.videoWidth) {
+        showToast("📹 Espera que la cámara esté lista", true);
+        return;
+      }
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      
+      const nuevaFoto = {
+        id: nextId++,
+        data: dataUrl,
+        status: 'pending',
+        filterName: filters[currentFilterIndex].name,
+        timestamp: new Date().toISOString(),
+        type: 'photo'
+      };
+      fotos.unshift(nuevaFoto);
+      saveToLocal();
+      renderGallery();
+      updateStats();
+      showToast(`📸 ${filters[currentFilterIndex].name} · subiendo...`);
+      uploadToDrive(nuevaFoto);
+      flashEffect();
+    }
+    
+    // ========== SUBIDA A DRIVE ==========
+    async function uploadToDrive(item) {
+      if (item.status === 'sent') return;
+      item.status = 'sending';
+      renderGallery();
+      updateStats();
+      
+      try {
+        const formData = new URLSearchParams();
+        formData.append('image', item.data);
+        formData.append('timestamp', item.timestamp);
+        formData.append('type', item.type || 'photo');
+        if (item.userName) formData.append('userName', item.userName);
+        if (item.note) formData.append('note', item.note);
+        if (item.filterName) formData.append('filter', item.filterName);
+        
+        const response = await fetch(SCRIPT_URL, { 
+          method: 'POST', 
+          body: formData, 
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' } 
+        });
+        const result = await response.text();
+        
+        if (result.startsWith('OK') || result.includes('OK')) {
+          item.status = 'sent';
+          totalEnviadas++;
+          saveToLocal();
+          renderGallery();
+          updateStats();
+          showToast(`✅ ${item.type === 'note' ? 'Nota' : 'Foto'} enviada a Drive!`);
+        } else {
+          throw new Error(result);
+        }
+      } catch (error) {
+        item.status = 'error';
+        renderGallery();
+        updateStats();
+        setTimeout(() => {
+          const found = fotos.find(f => f.id === item.id);
+          if (found && found.status === 'error') uploadToDrive(found);
+        }, 8000);
+      }
+    }
+    
+    // ========== NOTA CON FOTO ==========
+    async function takePhotoForNote() {
+      if (!cameraActive || !video.videoWidth) {
+        showToast("📹 Espera que la cámara esté lista", true);
+        return;
+      }
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      notePhotoData = canvas.toDataURL('image/jpeg', 0.92);
+      notePhotoPreview.innerHTML = `<img src="${notePhotoData}" alt="foto nota">`;
+      showToast(`📸 Foto para nota guardada con filtro ${filters[currentFilterIndex].name}`);
+    }
+    
+    async function submitNoteWithPhoto() {
+      const userName = userNameInput.value.trim();
+      const noteMessage = noteMessageInput.value.trim();
+      
+      if (!userName) { showToast("✨ Escribe tu nombre por favor", true); return; }
+      if (!noteMessage) { showToast("💌 Escribe tu mensaje especial", true); return; }
+      if (!notePhotoData) { showToast("📸 Toma una foto para acompañar tu nota", true); return; }
+      
+      const notaCompleta = {
+        id: nextId++,
+        data: notePhotoData,
+        userName: userName,
+        note: noteMessage,
+        filterName: filters[currentFilterIndex].name,
+        status: 'pending',
+        timestamp: new Date().toISOString(),
+        type: 'note'
+      };
+      fotos.unshift(notaCompleta);
+      saveToLocal();
+      renderGallery();
+      updateStats();
+      showToast(`💌 Enviando nota de ${userName}...`);
+      uploadToDrive(notaCompleta);
+      
+      // Limpiar
+      userNameInput.value = '';
+      noteMessageInput.value = '';
+      notePhotoData = null;
+      notePhotoPreview.innerHTML = '<span style="color:#aaa"><i class="fas fa-camera"></i> Toca para tomar una foto</span>';
+      notePanel.classList.remove('open');
+    }
+    
+    // ========== GALERÍA ==========
+    function renderGallery() {
+      if (fotos.length === 0) {
+        galleryGrid.innerHTML = '<div style="color:#888; text-align:center; width:100%;">📸 Toma fotos o deja notas</div>';
+        return;
+      }
+      galleryGrid.innerHTML = fotos.map(foto => `
+        <div class="gallery-item" data-id="${foto.id}">
+          <img src="${foto.data}" alt="recuerdo">
+          <div style="position:absolute; bottom:4px; right:4px; background:rgba(0,0,0,0.6); border-radius:12px; padding:2px 6px; font-size:0.5rem; color:white;">
+            ${foto.type === 'note' ? '💌' : '📷'} ${foto.status === 'sent' ? '✓' : (foto.status === 'sending' ? '⏳' : '❌')}
+          </div>
+        </div>
+      `).join('');
+      
+      document.querySelectorAll('.gallery-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const id = parseInt(item.dataset.id);
+          const foto = fotos.find(f => f.id === id);
+          if (foto) {
+            const link = document.createElement('a');
+            link.download = `recuerdo_${foto.type}_${Date.now()}.jpg`;
+            link.href = foto.data;
+            link.click();
+            showToast(`📸 Descargando ${foto.type === 'note' ? 'nota' : 'foto'}`);
+          }
+        });
+      });
+    }
+    
+    // ========== PERSISTENCIA ==========
+    function saveToLocal() {
+      localStorage.setItem('fotosFotonRecuerdos', JSON.stringify(fotos));
+      localStorage.setItem('totalEnviadasFoton', totalEnviadas);
+      localStorage.setItem('nextIdFoton', nextId);
+    }
+    
+    function loadFromLocal() {
+      const saved = localStorage.getItem('fotosFotonRecuerdos');
+      if (saved) {
+        fotos = JSON.parse(saved);
+        nextId = localStorage.getItem('nextIdFoton') ? parseInt(localStorage.getItem('nextIdFoton')) : (fotos.length > 0 ? Math.max(...fotos.map(f => f.id)) + 1 : 1);
+      }
+      const savedTotal = localStorage.getItem('totalEnviadasFoton');
+      if (savedTotal) totalEnviadas = parseInt(savedTotal);
+      renderGallery();
+      updateStats();
+      fotos.forEach(foto => { if (foto.status === 'pending' || foto.status === 'error') uploadToDrive(foto); });
+    }
+    
+    function updateStats() {
+      totalEnviadasSpan.textContent = totalEnviadas;
+      totalFotosSpan.textContent = fotos.length;
+    }
+    
+    // ========== UI ==========
+    function showToast(msg, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = msg;
+      if (isError) toast.style.background = 'rgba(200,60,50,0.9)';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2200);
+    }
+    
+    function flashEffect() {
+      const flash = document.createElement('div');
+      flash.style.position = 'fixed';
+      flash.style.top = '0';
+      flash.style.left = '0';
+      flash.style.width = '100%';
+      flash.style.height = '100%';
+      flash.style.background = 'white';
+      flash.style.pointerEvents = 'none';
+      flash.style.zIndex = '9999';
+      flash.style.animation = 'flashAnim 0.15s ease-out';
+      document.body.appendChild(flash);
+      setTimeout(() => flash.remove(), 150);
+      const style = document.createElement('style');
+      style.textContent = `@keyframes flashAnim { 0% { opacity: 0.8; } 100% { opacity: 0; } }`;
+      document.head.appendChild(style);
+      setTimeout(() => style.remove(), 200);
+    }
+    
+    // ========== EVENTOS SWIPE ==========
+    let touchStartX = 0;
+    if (video) {
+      video.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+      video.addEventListener('touchend', (e) => {
+        const diff = e.changedTouches[0].screenX - touchStartX;
+        if (Math.abs(diff) > 50) diff > 0 ? prevFilter() : nextFilter();
+      });
+    }
+    
+    // ========== MANEJAR PERMISOS ==========
+    async function handlePermission() {
+      errorMsgDiv.style.display = 'none';
+      showToast("📷 Solicitando acceso a cámara...");
+      
+      const success = await initCamera('user');
+      
+      if (success) {
+        welcomeScreen.classList.add('hide');
+        setTimeout(() => { mainApp.classList.add('visible'); }, 500);
+        showToast("📷 Cámara lista! Desliza para cambiar filtros");
+      } else {
+        errorMsgDiv.style.display = 'block';
+        errorMsgDiv.innerHTML = '❌ No se pudo acceder a la cámara. Verifica que diste permiso y recarga la página.';
+        showToast("❌ Permiso de cámara denegado. Reintenta.", true);
+      }
+    }
+    
+    // ========== BOTONES ==========
+    permitirBtn.addEventListener('click', handlePermission);
+    if (reintentarBtn) reintentarBtn.addEventListener('click', () => initCamera(currentFacing));
+    
+    captureBtn.addEventListener('click', capturePhoto);
+    switchCamBtn.addEventListener('click', () => {
+      currentFacing = currentFacing === 'user' ? 'environment' : 'user';
+      initCamera(currentFacing);
+    });
+    noteBtn.addEventListener('click', () => notePanel.classList.add('open'));
+    galleryBtn.addEventListener('click', () => galleryPanel.classList.add('open'));
+    closeNoteBtn.addEventListener('click', () => notePanel.classList.remove('open'));
+    closeGalleryBtn.addEventListener('click', () => galleryPanel.classList.remove('open'));
+    takePhotoForNoteBtn.addEventListener('click', takePhotoForNote);
+    submitNoteBtn.addEventListener('click', submitNoteWithPhoto);
+    
+    // Cerrar paneles
+    document.addEventListener('click', (e) => {
+      if (!notePanel.contains(e.target) && !noteBtn.contains(e.target)) notePanel.classList.remove('open');
+      if (!galleryPanel.contains(e.target) && !galleryBtn.contains(e.target)) galleryPanel.classList.remove('open');
+    });
+    
+    // Iniciar
+    loadFromLocal();
+    applyFilterToVideo(filters[0]);
+  </script>
+</body>
+</html>
